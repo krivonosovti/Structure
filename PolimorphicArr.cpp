@@ -50,7 +50,7 @@ int array_resize(arr* a, size_t newSize)
 		return 0;
 	if (newSize)
 	{
-		void* n = (void*)realloc(a->data, newSize * a->size);// ïî÷åìó ó Ëîâÿãè int*?
+		void* n = (void*)realloc(a->data, newSize * a->size);// Ã¯Ã®Ã·Ã¥Ã¬Ã³ Ã³ Ã‹Ã®Ã¢Ã¿Ã£Ã¨ int*?
 		if (!n) return 1;
 		a->data = n;
 	}
@@ -88,3 +88,38 @@ int array_get(const arr* a, size_t i, void* e)
 	}
 	return 1;
 }
+		       
+int array_insert(arr* a, const void* e)
+{
+	size_t count = a->count;
+	int status = array_resize(a, count + 1);
+	if (status) return status;
+	memcpy(array_ptr(a, count), e, a->size);
+	return 0;
+}
+
+int array_delete(arr* a, size_t i)
+{
+	size_t count = a->count;
+	void* tmp = NULL;
+	int status;
+	if (i >= count) return 1;
+	--count;
+	if (count > i)
+	{
+		tmp = malloc(a->size);
+		if (!tmp) return 2;
+		memcpy(tmp, array_ptr_const(a, count), a->size);
+	}
+	status = array_resize(a, count);
+	if (status)
+	{
+		free(tmp);
+		return status;
+	}
+	if (count > i)
+	{
+		memcpy(array_ptr(a, i), tmp, a->size);
+		free(tmp);
+	}
+	return 0;
